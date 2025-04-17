@@ -2,48 +2,65 @@ import streamlit as st
 import json
 from datetime import datetime
 
-# Load challenges
+# Load daily challenges
 with open("challenges.json", "r") as f:
     challenges = json.load(f)
 
-# Today's date
+# Get today's date
 today = datetime.today().strftime("%Y-%m-%d")
-index = datetime.today().day % len(challenges)
+day_index = datetime.today().day % len(challenges)
 
-# Streamlit App
+# Set page config
+st.set_page_config(page_title="Growth Mindset", page_icon="🌱", layout="centered")
+
+# Title
 st.title("🌱 Growth Mindset Challenge")
-st.subheader(f"Today's Date: {today}")
+st.caption("Built with 💚 using Streamlit")
 
-st.markdown("## 🧩 Your Challenge for Today")
-st.info(challenges[index])
+st.markdown(f"### 📅 Today's Date: `{today}`")
+st.divider()
 
-# Progress Tracking
-st.markdown("## ✅ Mark as Complete")
-if "completed" not in st.session_state:
-    st.session_state.completed = []
+# Show challenge
+st.markdown("## 🧩 Your Challenge")
+st.info(challenges[day_index])
 
-if st.button("✅ I completed this challenge!"):
-    if today not in st.session_state.completed:
-        st.session_state.completed.append(today)
-        st.success("Great job! Keep growing! 🌟")
+# Activity Section
+st.divider()
+st.markdown("## ✍️ Today's Activity")
+
+journal = st.text_area("📝 Reflect on this challenge. What did you learn or try?")
+goal = st.text_input("🎯 Write one small goal for today:")
+photo = st.file_uploader("📸 Upload a photo that shows your progress (optional)", type=["jpg", "png"])
+
+# Mark complete
+if "completed_days" not in st.session_state:
+    st.session_state.completed_days = []
+
+if st.button("✅ Submit Activity"):
+    if today not in st.session_state.completed_days:
+        st.session_state.completed_days.append(today)
+        st.success("Awesome! Your activity is saved. Keep growing! 🌟")
     else:
-        st.warning("You've already completed today's challenge.")
+        st.warning("You already submitted today's challenge.")
 
-# Show completed days
+# Progress section
+st.divider()
 st.markdown("## 📅 Your Progress")
-if st.session_state.completed:
-    st.write("You've completed challenges on:")
-    for date in st.session_state.completed:
-        st.write(f"✔️ {date}")
+if st.session_state.completed_days:
+    for d in st.session_state.completed_days:
+        st.write(f"✔️ {d}")
 else:
-    st.write("No challenges completed yet.")
+    st.write("No challenges completed yet. Start your journey today! 🚀")
 
-# Motivational Quote
+# Quote of the day
+st.divider()
 st.markdown("## 💬 Quote of the Day")
 quotes = [
     "Believe you can and you're halfway there.",
-    "Success is not final, failure is not fatal: It is the courage to continue that counts.",
-    "The only limit to our realization of tomorrow is our doubts of today."
+    "Progress, not perfection.",
+    "Your only limit is you.",
+    "Mistakes are proof that you're trying.",
+    "Growth happens outside your comfort zone."
 ]
 quote_index = datetime.today().day % len(quotes)
 st.success(quotes[quote_index])
